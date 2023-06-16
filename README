@@ -1,4 +1,4 @@
-#Simple flask services/applications for various assignments.
+This is project to deploy resources under cleura cloud enviroment. The 
 # 
 # main.py: Online calculator, supports only 'add'.
 # application2.py: Replies with a string containing the Time and hostname.
