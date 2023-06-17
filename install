@@ -120,7 +120,6 @@ if [[ -f "$hostsfile" ]] ; then
 fi
 
 
-
 ## Create port for Virtual IP
 vip=$(openstack port create --network "$natverk_namn" --fixed-ip subnet="$sr_subnet" --no-security-group "$vip_port" )
 
