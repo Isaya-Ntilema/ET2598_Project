@@ -96,7 +96,6 @@ else
   echo "$(date) No routers to remove"
 fi
 
-
 # Removing the networks corresponding to the tag
 networks=$(openstack network list --tag ${tag_sr} -f value -c Name)
 if [ -n "$networks" ]; then
