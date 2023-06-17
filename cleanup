@@ -40,9 +40,9 @@ if [ -n "$servers" ]; then
   for server_id in $servers; do
     openstack server delete $server_id
   done
-  echo "$(date) Nodes are gone"
+  echo "$(date) Nodes are removed"
 else
-  echo "$(date) No nodes to release"
+  echo "$(date) No nodes to remove"
 fi
 
 
@@ -53,12 +53,10 @@ if [ -n "$keypairs" ]; then
   for key in $keypairs; do  
     openstack keypair delete $key
   done
-  echo "$(date) Removed $sr_keypair key"
+  echo "$(date) Removing $sr_keypair key"
 else
   echo "$(date) No keypair to delete."
 fi
-
-
 
 floating_ip=$(openstack floating ip list --status DOWN -f value -c "Floating IP Address")
 # floating_ip_list=(${existing_floating_ip// / })
@@ -67,7 +65,7 @@ if [ -n "$floating_ip" ]; then
   for fip in $floating_ip; do
     openstack floating ip delete "$fip"
   done
-  echo "$(date) Removed all floating IPs"
+  echo "$(date) Removing all floating IPs"
 else
   echo "$(date) No floating IPs to remove"
 fi
@@ -81,7 +79,7 @@ if [ -n "${subnet_id}" ]; then
     openstack router remove subnet "${sr_router}" "$sub"
     openstack subnet delete "$sub"
   done
-  echo "$(date) Removed ${sr_subnet} subnet"
+  echo "$(date) Removing ${sr_subnet} subnet"
 else
   echo "$(date) No subnets to remove"
 fi
@@ -94,7 +92,7 @@ if [ -n "$routers" ]; then
   for r in $routers; do
     openstack router delete "$r"
   done
-  echo "$(date) Removed ${sr_router} router" 
+  echo "$(date) Removing ${sr_router} router" 
 else
   echo "$(date) No routers to remove"
 fi
@@ -106,7 +104,7 @@ if [ -n "$networks" ]; then
   for net in $networks; do
     openstack network delete "$net"
   done
-  echo "$(date) Removed ${network_name} network"
+  echo "$(date) Removing ${network_name} network"
 else
   echo "$(date) No networks to remove"
 fi
@@ -118,7 +116,7 @@ if [ -n "$security_group" ]; then
   for sec in $security_group; do
     openstack security group delete "$sec"
   done
-  echo "$(date) Removed ${sr_security_group} security group"
+  echo "$(date) Removing ${sr_security_group} security group"
 else
   echo "$(date) No security groups to remove"
 fi
