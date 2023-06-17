@@ -74,8 +74,6 @@ else
   echo "$(date) No floating IPs to remove"
 fi
 
-
-
 # Removing the subnet attached to the networks and router
 # subnet_id=$(openstack router show "${router_name}" -f json -c interfaces_info | grep -oP '(?<="subnet_id": ")[^"]+' | awk '{print $1}')
 
