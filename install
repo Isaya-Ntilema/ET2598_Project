@@ -66,8 +66,6 @@ else
     echo "$(date) Added ${sr_subnet}."
 fi
 
-
-
 # Checking current routers
 current_routers=$(openstack router list --tag "${tag_sr}" --column Name -f value)
 if echo "${current_routers}" | grep -qFx ${sr_router} 
