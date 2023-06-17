@@ -46,4 +46,14 @@ else
     echo "$(date)  Adding ${sr_keypair} associated with ${ssh_key_sr}."
 fi
 
+# Checking current networks corresponding to the tag
+current_networks=$(openstack network list --tag "${tag_sr}" --column Name -f value)
+if echo "${current_networks}" | grep -qFx ${natverk_namn} 
+then
+    echo "$(date) ${natverk_namn} already exists"
+else
+    echo "$(date) Did not detect ${natverk_namn} in the OpenStack project, adding it."
+    new_network=$(openstack network create --tag "${tag_sr}" "${natverk_namn}" -f json)
+    echo "$(date) Added ${natverk_namn}."
+fi
 
