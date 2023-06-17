@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Checking if the required arguments are present - the openrc ${1}, the tag ${2} and the ssh_key ${3}
-# The program will not run if these arguments are not present.
+# Checking required arguments
 : ${1:?" Please specify the openrc, tag, and ssh_key"}
 : ${2:?" Please specify the openrc, tag, and ssh_key"}
 : ${3:?" Please specify the openrc, tag, and ssh_key"}
