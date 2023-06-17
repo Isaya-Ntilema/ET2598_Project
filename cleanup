@@ -12,11 +12,9 @@ tag_sr=${2}        # Fetching the tag for easy identification of items
 ssh_key_sr=${3}    # Fetching the ssh_key for secure remote access
 no_of_servers=$(grep -E '[0-9]' servers.conf) # Fetching the number of nodes from servers.conf
 
-
 # Sourcing openrc file
 echo "$cd_time Cleaning up $tag_sr using $openrc_sr"
 source $openrc_sr
-
 
 # Define variables
 natverk_namn="${2}_network"
