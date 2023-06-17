@@ -1,7 +1,5 @@
-This is project to deploy resources under cleura cloud enviroment. The project uses different technologies such as openstack and ansible.
+This is a project to deploy resources in the cloud enviroment. The project is full automated using different technologies such as openstack and ansible.
 
 Openstack is used to deploy different resouces in the cloud such as network, subnet, router and virtual machines. 
 
 Ansible is later used to commission apllications in the virtual machines. 
-
-
