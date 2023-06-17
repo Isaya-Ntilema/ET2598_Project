@@ -109,7 +109,6 @@ else
   echo "$(date) No networks to remove"
 fi
 
-
 # Removing security groups corresponding to the tag
 security_group=$(openstack security group list --tag $tag_sr -f value -c Name)
 if [ -n "$security_group" ]; then
