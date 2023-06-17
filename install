@@ -16,7 +16,6 @@ no_of_servers=$(grep -E '[0-9]' servers.conf) # Fetching the number of nodes fro
 echo "${cd_time} Starting deployment of $tag_sr using ${openrc_sr} for credentials."
 source ${openrc_sr}
 
-
 # Define variables
 natverk_namn="${2}_network"
 sr_subnet="${2}_subnet"
