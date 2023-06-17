@@ -35,15 +35,14 @@ servers=$(openstack server list --name "$tag_sr" -c ID -f value)
 n=$(echo "$servers" | wc -l)
 # Deleting each server
 if [ -n "$servers" ]; then
-  echo "$(date) We have $n nodes, releasing them"
+  echo "$(date) We have $n nodes, to be deleted"
   for server_id in $servers; do
     openstack server delete $server_id
   done
-  echo "$(date) Nodes are removed"
+  echo "$(date) $n nodes have been deleted"
 else
-  echo "$(date) No nodes to remove"
+  echo "$(date) No nodes to delete"
 fi
-
 
 # Deleting the keypair corresponding to the tag
 keypairs=$(openstack keypair list -f value -c Name | grep "$tag_sr*")
@@ -64,9 +63,9 @@ if [ -n "$floating_ip" ]; then
   for fip in $floating_ip; do
     openstack floating ip delete "$fip"
   done
-  echo "$(date) Removing all floating IPs"
+  echo "$(date) Deleting all floating IPs"
 else
-  echo "$(date) No floating IPs to remove"
+  echo "$(date) No floating IPs to delete"
 fi
 
 # Removing the subnet attached to the networks and router
@@ -78,12 +77,10 @@ if [ -n "${subnet_id}" ]; then
     openstack router remove subnet "${sr_router}" "$sub"
     openstack subnet delete "$sub"
   done
-  echo "$(date) Removing ${sr_subnet} subnet"
+  echo "$(date) Delete ${sr_subnet} subnet"
 else
-  echo "$(date) No subnets to remove"
+  echo "$(date) No subnets to delete"
 fi
-
-# remove_ext_gateway=$(openstack router unset --external-gateway ${existing_routers}) 
 
 # Removing the routers corresponding to the tag
 routers=$(openstack router list --tag ${tag_sr} -f value -c Name)
@@ -91,9 +88,9 @@ if [ -n "$routers" ]; then
   for r in $routers; do
     openstack router delete "$r"
   done
-  echo "$(date) Removing ${sr_router} router" 
+  echo "$(date) Deleting ${sr_router} router" 
 else
-  echo "$(date) No routers to remove"
+  echo "$(date) No routers to delete"
 fi
 
 # Removing the networks corresponding to the tag
@@ -102,9 +99,9 @@ if [ -n "$networks" ]; then
   for net in $networks; do
     openstack network delete "$net"
   done
-  echo "$(date) Removing ${network_name} network"
+  echo "$(date) Deleting ${network_name} network"
 else
-  echo "$(date) No networks to remove"
+  echo "$(date) No networks to delete"
 fi
 
 # Removing security groups corresponding to the tag
@@ -113,9 +110,9 @@ if [ -n "$security_group" ]; then
   for sec in $security_group; do
     openstack security group delete "$sec"
   done
-  echo "$(date) Removing ${sr_security_group} security group"
+  echo "$(date) Deleting ${sr_security_group} security group"
 else
-  echo "$(date) No security groups to remove"
+  echo "$(date) No security groups to delete"
 fi
 
 if [[ -f "$sshconfig" ]] ; then
