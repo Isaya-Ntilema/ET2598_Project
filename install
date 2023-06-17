@@ -6,7 +6,6 @@
 : ${2:?" Please specify the openrc, tag, and ssh_key"}
 : ${3:?" Please specify the openrc, tag, and ssh_key"}
 
-
 cd_time=$(date)
 openrc_sr=${1}     # Fetching the openrc access file
 tag_sr=${2}        # Fetching the tag for easy identification of items
