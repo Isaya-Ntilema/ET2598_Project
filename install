@@ -71,7 +71,7 @@ if echo "${current_routers}" | grep -qFx ${sr_router}
 then
     echo "$(date) ${sr_router} already exists"
 else
-    echo "$(date) Did not detect ${sr_router} in the OpenStack project, adding it."
+    echo "$(date) Did not detect ${sr_router} in the Openstack project, adding it."
     new_router=$(openstack router create --tag ${tag_sr} ${sr_router})
     echo "$(date) Added ${sr_router}."
     echo "$(date) Adding networks to router."
@@ -84,7 +84,7 @@ fi
 current_security_groups=$(openstack security group list --tag ${tag_sr} -f value)
 if [[ -z "${current_security_groups}" ||  "${current_security_groups}" != *"${sr_security_group}"* ]]
 then
-    echo "$(date) Adding security group(s)."
+    echo "$(date) Adding security group rules."
     created_security_group=$(openstack security group create --tag ${tag_sr} ${sr_security_group} -f json)
     rule1=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 22 --protocol tcp --ingress ${sr_security_group})
     rule2=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 80 --protocol icmp --ingress ${sr_security_group})
