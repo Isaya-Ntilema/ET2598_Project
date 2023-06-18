@@ -114,7 +114,7 @@ if [[ -f "$hostsfile" ]] ; then
     rm "$hostsfile"
 fi
 
-unassigned_ips=$(openstack floating ip list --status DOWN -f value -c "Floating IP address")
+unassigned_ips=$(openstack floating ip list --status DOWN -f value -c "Floating IP Address")
 
 # Node creation
 
