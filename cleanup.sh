@@ -6,16 +6,16 @@
 : ${3:?" Please specify the openrc, tag, and ssh_key"}
 
 cd_time=$(date)
-openrc_sr=${1}     # Fetching the openrc access file
-tag_sr=${2}        # Fetching the tag for easy identification of items
-ssh_key_sr=${3}    # Fetching the ssh_key for secure remote access
-no_of_servers=$(grep -E '[0-9]' servers.conf) # Fetching the number of nodes from servers.conf
+openrc_sr=${1}     # The openrc file
+tag_sr=${2}        # The tag for identifying resources
+ssh_key_sr=${3}    # The ssh_key
+no_of_servers=$(grep -E '[0-9]' servers.conf) # number of nodes from servers.conf
 
 # Sourcing openrc file
 echo "$cd_time Cleaning up $tag_sr using $openrc_sr"
 source $openrc_sr
 
-# Define variables
+# Variables
 natverk_namn="${2}_network"
 sr_subnet="${2}_subnet"
 sr_keypair="${2}_key"
@@ -35,7 +35,7 @@ servers=$(openstack server list --name "$tag_sr" -c ID -f value)
 n=$(echo "$servers" | wc -l)
 # Deleting each server
 if [ -n "$servers" ]; then
-  echo "$(date) We have $n nodes, to be deleted"
+  echo "$(date) $n nodes, to be deleted"
   for server_id in $servers; do
     openstack server delete $server_id
   done
@@ -44,14 +44,14 @@ else
   echo "$(date) No nodes to delete"
 fi
 
-# Deleting the keypair corresponding to the tag
+# Deleting the keypair
 keypairs=$(openstack keypair list -f value -c Name | grep "$tag_sr*")
 
 if [ -n "$keypairs" ]; then
   for key in $keypairs; do  
     openstack keypair delete $key
   done
-  echo "$(date) Removing $sr_keypair key"
+  echo "$(date) Deleting $sr_keypair key"
 else
   echo "$(date) No keypair to delete."
 fi
