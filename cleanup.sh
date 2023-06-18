@@ -57,7 +57,6 @@ else
 fi
 
 floating_ip=$(openstack floating ip list --status DOWN -f value -c "Floating IP Address")
-# floating_ip_list=(${existing_floating_ip// / })
 
 if [ -n "$floating_ip" ]; then
   for fip in $floating_ip; do
@@ -67,9 +66,6 @@ if [ -n "$floating_ip" ]; then
 else
   echo "$(date) No floating IPs to delete"
 fi
-
-# Removing the subnet attached to the networks and router
-# subnet_id=$(openstack router show "${router_name}" -f json -c interfaces_info | grep -oP '(?<="subnet_id": ")[^"]+' | awk '{print $1}')
 
 subnet_id=$(openstack subnet list --tag "${tag_sr}" -c ID -f value)
 if [ -n "${subnet_id}" ]; then
