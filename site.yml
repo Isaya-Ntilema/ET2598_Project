@@ -1,0 +1,68 @@
+---
+- hosts: webservers
+  gather_facts: yes
+  become: yes
+  tasks:
+    - name: Update the repositories cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      
+    - name: Install Python3-pip
+      apt:
+         name: python3-pip
+         state: present
+         
+    - name: Install flask using 'pip3' executable
+      ansible.builtin.pip:
+        name: flask
+        executable: pip3
+        state: latest
+
+    - name: Upload the application to the servers
+      copy:
+        src: ./service.py
+        dest: /home/ubuntu
+        owner: ubuntu
+        group: ubuntu
+        mode: 0644
+
+    - name: Run the application
+      shell: python3 /home/ubuntu/service.py
+      async: 3600
+      poll: 0
+      
+    - name: Install the snmpdaemon
+      apt:
+              name: snmpd
+              state: latest
+    
+    - name: Copy the snmpd config file
+      template:
+              src: snmpd.conf.j2
+              dest: "/etc/snmp/snmpd.conf"
+    - name: Run the snmpdaemon
+      service:
+              name: snmpd
+              state: restarted    
+
+- hosts: haproxy
+  gather_facts: yes
+  become: yes
+  tasks:
+    - name: Update repositories cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+    - name: Install HAproxy
+      apt:
+        name: haproxy
+        state: present
+    - name: Upload haproxy config file
+      template:
+        src: ./haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+    - name: Restart HAProxy
+      service:
+        name: haproxy
+        state: restarted
