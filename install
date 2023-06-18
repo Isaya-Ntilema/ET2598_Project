@@ -61,7 +61,7 @@ then
     echo "$(date) ${sr_subnet} already exists"
 else
     echo "$(date) Did not detect ${sr_subnet} in the Openstack project, adding it."
-    new_subnet=$(openstack subnet create --subnet-range 10.10.0.0/24 --allocation-pool start=10.10.0.2,end=10.10.0.30 --tag "${tag_sr}" --network "${natverk_namn}" "${sr_subnet}" -f json)
+    new_subnet=$(openstack subnet create --subnet-range 10.10.100.0/24 --allocation-pool start=10.10.100.2,end=10.10.100.30 --tag "${tag_sr}" --network "${natverk_namn}" "${sr_subnet}" -f json)
     echo "$(date) Added ${sr_subnet}."
 fi
 
