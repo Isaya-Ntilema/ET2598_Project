@@ -209,11 +209,8 @@ else
     echo "Required number of servers($no_of_servers) already exist"
 fi
 
-
 bastionfip=$(openstack server list --name ${sr_bastion_server} -c Networks -f value | grep -Po '\d+\.\d+\.\d+\.\d+' | awk 'NR==2')
 haproxyfip=$(openstack server list --name ${sr_haproxy_server} -c Networks -f value | grep -Po '\d+\.\d+\.\d+\.\d+' | awk 'NR==2')
-
-
 
 echo "$(date) Generating a config file"
 echo "Host $sr_bastion_server" >> $sshconfig
@@ -262,7 +259,6 @@ for server in $active_servers; do
         echo "$server" >> $hostsfile
 done
 
-
 echo " " >> $hostsfile
 echo "[all:vars]" >> $hostsfile
 echo "ansible_user=ubuntu" >> $hostsfile
@@ -271,7 +267,6 @@ echo "ansible_ssh_common_args=' -F $sshconfig '" >> $hostsfile
 
 echo "$(date) Running ansible playbook"
 ansible-playbook -i "$hostsfile" site.yaml
-
 
 echo "Bastion IP address: $fip1"
 echo "HAproxy IP address: $fip2"
