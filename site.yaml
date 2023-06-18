@@ -3,7 +3,7 @@
   gather_facts: yes
   become: yes
   tasks:
-    - name: Updating repositories
+    - name: Updating the repositories
       apt:
         update_cache: yes
         cache_valid_time: 3600
@@ -13,13 +13,13 @@
          name: python3-pip
          state: present
          
-    - name: Installing flask using 'pip3' 
+    - name: Installing flask 
       ansible.builtin.pip:
         name: flask
         executable: pip3
         state: latest
 
-    - name: Uploading application to the back-end servers
+    - name: Uploading application to the webservers
       copy:
         src: ./service.py
         dest: /home/ubuntu
@@ -27,7 +27,7 @@
         group: ubuntu
         mode: 0644
 
-    - name: Runing application
+    - name: Running the application
       shell: python3 /home/ubuntu/service.py
       async: 3600
       poll: 0
@@ -41,7 +41,7 @@
       template:
               src: snmpd.conf.j2
               dest: "/etc/snmp/snmpd.conf"
-    - name: Run the snmpdaemon
+    - name: Running the snmpdaemon
       service:
               name: snmpd
               state: restarted    
@@ -54,14 +54,19 @@
       apt:
         update_cache: yes
         cache_valid_time: 3600
-    - name: Installing HAproxy
+    - name: Install HAproxy
       apt:
         name: haproxy
         state: present
-    - name: Uploading haproxy configuration file
+    - name: Uploading haproxy config file
       template:
         src: ./haproxy.cfg.j2
         dest: /etc/haproxy/haproxy.cfg
+    - name: Installing snmp and snmp-mibs-downloader
+      apt: 
+        update_cache: yes
+        name: [ 'snmp', 'snmp-mibs-downloader' ] 
+        state: latest
     - name: Restart HAProxy
       service:
         name: haproxy
