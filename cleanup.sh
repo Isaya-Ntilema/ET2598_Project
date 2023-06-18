@@ -78,7 +78,7 @@ else
   echo "$(date) No subnets to delete"
 fi
 
-# Removing the routers corresponding to the tag
+# Removing the router
 routers=$(openstack router list --tag ${tag_sr} -f value -c Name)
 if [ -n "$routers" ]; then
   for r in $routers; do
@@ -89,7 +89,7 @@ else
   echo "$(date) No routers to delete"
 fi
 
-# Removing the networks corresponding to the tag
+# Removing the network
 networks=$(openstack network list --tag ${tag_sr} -f value -c Name)
 if [ -n "$networks" ]; then
   for net in $networks; do
@@ -100,7 +100,7 @@ else
   echo "$(date) No networks to delete"
 fi
 
-# Removing security groups corresponding to the tag
+# Removing security group rules
 security_group=$(openstack security group list --tag $tag_sr -f value -c Name)
 if [ -n "$security_group" ]; then
   for sec in $security_group; do
