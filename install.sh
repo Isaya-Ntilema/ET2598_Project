@@ -1,22 +1,28 @@
 #!/bin/bash
 
-SECONDS=0 # Used for tracking time
+SECONDS=0 # Using this to find how much time the solution takes to deploy
 
-# Checking required arguments
+
+# Checking if the required arguments are present - the openrc ${1}, the tag ${2} and the ssh_key ${3}
+# The program will not run if these arguments are not present.
 : ${1:?" Please specify the openrc, tag, and ssh_key"}
 : ${2:?" Please specify the openrc, tag, and ssh_key"}
 : ${3:?" Please specify the openrc, tag, and ssh_key"}
 
-cd_time=$(date)
-openrc_sr=${1}     # openrc access file
-tag_sr=${2}        # The tag for identifying resources
-ssh_key_sr=${3}    # The ssh_key
-no_of_servers=$(grep -E '[0-9]' servers.conf) # Getting number of nodes from servers.conf
 
+cd_time=$(date)
+openrc_sr=${1}     # Fetching the openrc access file
+tag_sr=${2}        # Fetching the tag for easy identification of items
+ssh_key_sr=${3}    # Fetching the ssh_key for secure remote access
+no_of_servers=$(grep -E '[0-9]' servers.conf) # Fetching the number of nodes from servers.conf
+
+
+# Begin deployment by sourcing the given openrc file
 echo "${cd_time} Starting deployment of $tag_sr using ${openrc_sr} for credentials."
 source ${openrc_sr}
 
-# Variables
+
+# Define variables
 natverk_namn="${2}_network"
 sr_subnet="${2}_subnet"
 sr_keypair="${2}_key"
@@ -30,7 +36,8 @@ sshconfig="config"
 knownhosts="known_hosts"
 hostsfile="hosts"
 
-# Checking if there is keypairs present
+
+# Check for current keypairs
 
 echo "$(date) Checking if we have ${sr_keypair} available."
 current_keypairs=$(openstack keypair list -f value --column Name)
@@ -42,36 +49,42 @@ else
     echo "$(date)  Adding ${sr_keypair} associated with ${ssh_key_sr}."
 fi
 
-# Checking existing networks with the tag
+
+
+# Checking current networks corresponding to the tag
 current_networks=$(openstack network list --tag "${tag_sr}" --column Name -f value)
 if echo "${current_networks}" | grep -qFx ${natverk_namn} 
 then
     echo "$(date) ${natverk_namn} already exists"
 else
-    echo "$(date) Did not detect ${natverk_namn} in the Openstack project, adding it."
+    echo "$(date) Did not detect ${natverk_namn} in the OpenStack project, adding it."
     new_network=$(openstack network create --tag "${tag_sr}" "${natverk_namn}" -f json)
     echo "$(date) Added ${natverk_namn}."
 fi
 
-# Checking existing subnets with the tag
+
+
+# Checking current subnets corresponding to the tag
 current_subnets=$(openstack subnet list --tag "${tag_sr}" --column Name -f value)
 
 if echo "${current_subnets}" | grep -qFx ${sr_subnet} 
 then
     echo "$(date) ${sr_subnet} already exists"
 else
-    echo "$(date) Did not detect ${sr_subnet} in the Openstack project, adding it."
-    new_subnet=$(openstack subnet create --subnet-range 192.168.100.0/24 --allocation-pool start=192.168.100.2,end=192.168.100.30 --tag "${tag_sr}" --network "${natverk_namn}" "${sr_subnet}" -f json)
+    echo "$(date) Did not detect ${sr_subnet} in the OpenStack project, adding it."
+    new_subnet=$(openstack subnet create --subnet-range 10.10.0.0/24 --allocation-pool start=10.10.0.2,end=10.10.0.30 --tag "${tag_sr}" --network "${natverk_namn}" "${sr_subnet}" -f json)
     echo "$(date) Added ${sr_subnet}."
 fi
 
-# Checking existing routers
+
+
+# Checking current routers
 current_routers=$(openstack router list --tag "${tag_sr}" --column Name -f value)
 if echo "${current_routers}" | grep -qFx ${sr_router} 
 then
     echo "$(date) ${sr_router} already exists"
 else
-    echo "$(date) Did not detect ${sr_router} in the Openstack project, adding it."
+    echo "$(date) Did not detect ${sr_router} in the OpenStack project, adding it."
     new_router=$(openstack router create --tag ${tag_sr} ${sr_router})
     echo "$(date) Added ${sr_router}."
     echo "$(date) Adding networks to router."
@@ -80,11 +93,13 @@ else
     echo "$(date) Done."
 fi
 
+
+
 # Check current security groups
 current_security_groups=$(openstack security group list --tag ${tag_sr} -f value)
 if [[ -z "${current_security_groups}" ||  "${current_security_groups}" != *"${sr_security_group}"* ]]
 then
-    echo "$(date) Adding security group rules."
+    echo "$(date) Adding security group(s)."
     created_security_group=$(openstack security group create --tag ${tag_sr} ${sr_security_group} -f json)
     rule1=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 22 --protocol tcp --ingress ${sr_security_group})
     rule2=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 80 --protocol icmp --ingress ${sr_security_group})
@@ -114,7 +129,10 @@ if [[ -f "$hostsfile" ]] ; then
     rm "$hostsfile"
 fi
 
+
+
 unassigned_ips=$(openstack floating ip list --status DOWN -f value -c "Floating IP Address")
+
 
 # Node creation
 
@@ -126,21 +144,21 @@ else
    if [[ -n "${unassigned_ips}" ]]; then
         fip1=$(echo "${unassigned_ips}" | awk '{print $1}')
         if [[ -n "${fip1}" ]]; then
-            echo "$(date) 1 floating IP address available for the Bastion host"
+            echo "$(date) 1 floating IP available for the Bastion."
         else
-            echo "$(date) Creating floating IP address for the Bastion host"
+            echo "$(date) Creating floating IP for the Bastion 1"
             created_fip1=$(openstack floating ip create ext-net -f json | jq -r '.floating_ip_address' > floating_ip1)
             fip1="$(cat floating_ip1)"
         fi
     else
-            echo "$(date) Creating floating IP address for the Bastion host"
+            echo "$(date) Creating floating IP for the Bastion 2"
             created_fip1=$(openstack floating ip create ext-net -f json | jq -r '.floating_ip_address' > floating_ip1)
             fip1="$(cat floating_ip1)"
     fi
     echo "$(date) Did not detect ${sr_bastion_server}, launching it."
-    bastion=$(openstack server create --image "Ubuntu 20.04 Focal Fossa 20200423" ${sr_bastion_server} --key-name ${sr_keypair} --flavor "2C-2GB" --network ${natverk_namn} --security-group ${sr_security_group}) 
+    bastion=$(openstack server create --image "Ubuntu 20.04 Focal Fossa 20200423" ${sr_bastion_server} --key-name ${sr_keypair} --flavor "1C-2GB-50GB" --network ${natverk_namn} --security-group ${sr_security_group}) 
     add_bastion_fip=$(openstack server add floating ip ${sr_bastion_server} ${fip1}) 
-    echo "$(date) Floating IP address assigned to the bastion host"
+    echo "$(date) Floating IP assigned for bastion."
     echo "$(date) Added ${sr_bastion_server} server."
 fi
 
@@ -151,26 +169,29 @@ else
     if [[ -n "$unassigned_ips" ]]; then
         fip2=$(echo "$unassigned_ips" | awk '{print $2}')
         if [[ -n "$fip2" ]]; then
-            echo "$(date) 1 floating IP address available for the HAproxy server"
+            echo "$(date) 1 floating IP available for the HAproxy server."
         else
-            echo "$(date) Creating floating IP address for the HAproxy "
+            echo " $(date) Creating floating IP for the HAproxy "
             created_fip2=$(openstack floating ip create ext-net -f json | jq -r '.floating_ip_address' > floating_ip2)
             fip2="$(cat floating_ip2)"
         fi
     else
-            echo "$(date) Creating floating IP address for the HAproxy "
+            echo "$(date) Creating floating IP for HAproxy "
             created_fip2=$(openstack floating ip create ext-net -f json | jq -r '.floating_ip_address' > floating_ip2)
             fip2="$(cat floating_ip2)"
     fi
     echo "$(date) Did not detect ${sr_haproxy_server}, launching it."
-    haproxy=$(openstack server create --image "Ubuntu 20.04 Focal Fossa 20200423" ${sr_haproxy_server} --key-name ${sr_keypair} --flavor "2C-2GB" --network ${natverk_namn} --security-group ${sr_security_group})
+    haproxy=$(openstack server create --image "Ubuntu 20.04 Focal Fossa 20200423" ${sr_haproxy_server} --key-name ${sr_keypair} --flavor "1C-2GB-50GB" --network ${natverk_namn} --security-group ${sr_security_group})
     add_haproxy_fip=$(openstack server add floating ip ${sr_haproxy_server} ${fip2})
-    echo "$(date) Floating IP address assigned for HAProxy."
+    echo "$(date) Floating IP assigned for HAProxy."
     echo "$(date) Added ${sr_haproxy_server} server."
     
 fi
 
+
+
 devservers_count=$(grep -ocP ${sr_server} <<< ${existing_servers})
+
 
 if((${no_of_servers} > ${devservers_count})); then
     devservers_to_add=$((${no_of_servers} - ${devservers_count}))
@@ -179,7 +200,7 @@ if((${no_of_servers} > ${devservers_count})); then
 
     while [ ${devservers_to_add} -gt 0 ]  
     do    
-        server_output=$(openstack server create --image "Ubuntu 20.04 Focal Fossa 20200423"  ${devserver_name} --key-name "${sr_keypair}" --flavor "1C-2GB" --network ${natverk_namn} --security-group ${sr_security_group})
+        server_output=$(openstack server create --image "Ubuntu 20.04 Focal Fossa 20200423"  ${devserver_name} --key-name "${sr_keypair}" --flavor "1C-2GB-50GB" --network ${natverk_namn} --security-group ${sr_security_group})
         echo "$(date) Node ${devserver_name} created."
         ((devservers_to_add--))
         
@@ -206,13 +227,16 @@ elif (( $no_of_servers < $devservers_count )); then
         ((sequence1++))
     done
 else
-    echo "Required number of servers($no_of_servers) already exist"
+    echo "Required number of servers($no_of_servers) already exist."
 fi
+
 
 bastionfip=$(openstack server list --name ${sr_bastion_server} -c Networks -f value | grep -Po '\d+\.\d+\.\d+\.\d+' | awk 'NR==2')
 haproxyfip=$(openstack server list --name ${sr_haproxy_server} -c Networks -f value | grep -Po '\d+\.\d+\.\d+\.\d+' | awk 'NR==2')
 
-echo "$(date) Generating a config file"
+
+
+echo "$(date) Generating config file"
 echo "Host $sr_bastion_server" >> $sshconfig
 echo "   User ubuntu" >> $sshconfig
 echo "   HostName $bastionfip" >> $sshconfig
@@ -259,6 +283,7 @@ for server in $active_servers; do
         echo "$server" >> $hostsfile
 done
 
+
 echo " " >> $hostsfile
 echo "[all:vars]" >> $hostsfile
 echo "ansible_user=ubuntu" >> $hostsfile
@@ -268,9 +293,10 @@ echo "ansible_ssh_common_args=' -F $sshconfig '" >> $hostsfile
 echo "$(date) Running ansible playbook"
 ansible-playbook -i "$hostsfile" site.yaml
 
+
 echo "Bastion IP address: $fip1"
 echo "HAproxy IP address: $fip2"
 
 # Displaying time taken by the script to deploy the environment
 duration=$SECONDS
-echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds used."
+echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."
