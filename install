@@ -7,7 +7,6 @@ SECONDS=0 # Used for tracking time
 : ${2:?" Please specify the openrc, tag, and ssh_key"}
 : ${3:?" Please specify the openrc, tag, and ssh_key"}
 
-
 cd_time=$(date)
 openrc_sr=${1}     # openrc access file
 tag_sr=${2}        # The tag for identifying resources
@@ -43,36 +42,30 @@ else
     echo "$(date)  Adding ${sr_keypair} associated with ${ssh_key_sr}."
 fi
 
-
-
-# Checking current networks corresponding to the tag
+# Checking existing networks with the tag
 current_networks=$(openstack network list --tag "${tag_sr}" --column Name -f value)
 if echo "${current_networks}" | grep -qFx ${natverk_namn} 
 then
     echo "$(date) ${natverk_namn} already exists"
 else
-    echo "$(date) Did not detect ${natverk_namn} in the OpenStack project, adding it."
+    echo "$(date) Did not detect ${natverk_namn} in the Openstack project, adding it."
     new_network=$(openstack network create --tag "${tag_sr}" "${natverk_namn}" -f json)
     echo "$(date) Added ${natverk_namn}."
 fi
 
-
-
-# Checking current subnets corresponding to the tag
+# Checking existing subnets with the tag
 current_subnets=$(openstack subnet list --tag "${tag_sr}" --column Name -f value)
 
 if echo "${current_subnets}" | grep -qFx ${sr_subnet} 
 then
     echo "$(date) ${sr_subnet} already exists"
 else
-    echo "$(date) Did not detect ${sr_subnet} in the OpenStack project, adding it."
+    echo "$(date) Did not detect ${sr_subnet} in the Openstack project, adding it."
     new_subnet=$(openstack subnet create --subnet-range 10.10.0.0/24 --allocation-pool start=10.10.0.2,end=10.10.0.30 --tag "${tag_sr}" --network "${natverk_namn}" "${sr_subnet}" -f json)
     echo "$(date) Added ${sr_subnet}."
 fi
 
-
-
-# Checking current routers
+# Checking existing routers
 current_routers=$(openstack router list --tag "${tag_sr}" --column Name -f value)
 if echo "${current_routers}" | grep -qFx ${sr_router} 
 then
