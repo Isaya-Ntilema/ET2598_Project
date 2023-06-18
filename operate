@@ -26,7 +26,7 @@ knownhosts="known_hosts"
 hostsfile="hosts"
 
 run_status=0 ##ansible run status
-echo "Running Operation mode for tag: ${tag_sr} using ${openrc_sr} for credentials"
+echo "Running Operate mode for tag: ${tag_sr} using ${openrc_sr} for credentials"
 source ${openrc_sr}
 
 generate_config(){
