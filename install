@@ -206,7 +206,7 @@ elif (( $no_of_servers < $devservers_count )); then
         ((sequence1++))
     done
 else
-    echo "Required number of servers($no_of_servers) already exist."
+    echo "Required number of servers($no_of_servers) already exist"
 fi
 
 
@@ -215,7 +215,7 @@ haproxyfip=$(openstack server list --name ${sr_haproxy_server} -c Networks -f va
 
 
 
-echo "$(date) Generating config file"
+echo "$(date) Generating a config file"
 echo "Host $sr_bastion_server" >> $sshconfig
 echo "   User ubuntu" >> $sshconfig
 echo "   HostName $bastionfip" >> $sshconfig
