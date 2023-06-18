@@ -80,8 +80,6 @@ else
     echo "$(date) Done."
 fi
 
-
-
 # Check current security groups
 current_security_groups=$(openstack security group list --tag ${tag_sr} -f value)
 if [[ -z "${current_security_groups}" ||  "${current_security_groups}" != *"${sr_security_group}"* ]]
@@ -116,10 +114,7 @@ if [[ -f "$hostsfile" ]] ; then
     rm "$hostsfile"
 fi
 
-
-
 unassigned_ips=$(openstack floating ip list --status DOWN -f value -c "Floating IP Address")
-
 
 # Node creation
 
@@ -131,21 +126,21 @@ else
    if [[ -n "${unassigned_ips}" ]]; then
         fip1=$(echo "${unassigned_ips}" | awk '{print $1}')
         if [[ -n "${fip1}" ]]; then
-            echo "$(date) 1 floating IP available for the Bastion."
+            echo "$(date) 1 floating IP available for the Bastion host"
         else
-            echo "$(date) Creating floating IP for the Bastion "
+            echo "$(date) Creating floating IP for the Bastion host"
             created_fip1=$(openstack floating ip create ext-net -f json | jq -r '.floating_ip_address' > floating_ip1)
             fip1="$(cat floating_ip1)"
         fi
     else
-            echo "$(date) Creating floating IP for the Bastion "
+            echo "$(date) Creating floating IP for the Bastion host"
             created_fip1=$(openstack floating ip create ext-net -f json | jq -r '.floating_ip_address' > floating_ip1)
             fip1="$(cat floating_ip1)"
     fi
     echo "$(date) Did not detect ${sr_bastion_server}, launching it."
     bastion=$(openstack server create --image "Ubuntu 20.04 Focal Fossa 20200423" ${sr_bastion_server} --key-name ${sr_keypair} --flavor "1C-2GB-50GB" --network ${natverk_namn} --security-group ${sr_security_group}) 
     add_bastion_fip=$(openstack server add floating ip ${sr_bastion_server} ${fip1}) 
-    echo "$(date) Floating IP assigned for bastion."
+    echo "$(date) Floating IP assigned to the bastion host"
     echo "$(date) Added ${sr_bastion_server} server."
 fi
 
@@ -156,9 +151,9 @@ else
     if [[ -n "$unassigned_ips" ]]; then
         fip2=$(echo "$unassigned_ips" | awk '{print $2}')
         if [[ -n "$fip2" ]]; then
-            echo "$(date) 1 floating IP available for the HAproxy server."
+            echo "$(date) 1 floating IP available for the HAproxy server"
         else
-            echo " $(date) Creating floating IP for the HAproxy "
+            echo "$(date) Creating floating IP for the HAproxy "
             created_fip2=$(openstack floating ip create ext-net -f json | jq -r '.floating_ip_address' > floating_ip2)
             fip2="$(cat floating_ip2)"
         fi
