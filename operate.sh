@@ -6,13 +6,12 @@
 : ${3:?" Please specify the openrc, tag, and ssh_key"}
 
 cd_time=$(date)
-openrc_sr=${1}     # Fetching the openrc access file
-tag_sr=${2}        # Fetching the tag for easy identification of items
-ssh_key_sr=${3}    # Fetching the ssh_key for secure remote access
-no_of_servers=$(grep -E '[0-9]' servers.conf) # Fetching the number of nodes from servers.conf
+openrc_sr=${1}     # openrc file
+tag_sr=${2}        # The tag for identifying resources
+ssh_key_sr=${3}    # ssh_key
+no_of_servers=$(grep -E '[0-9]' servers.conf) # Getting number of nodes from servers.conf
 
-
-# Define variables
+# Defining variables
 natverk_namn="${2}_network"
 sr_subnet="${2}_subnet"
 sr_keypair="${2}_key"
