@@ -278,4 +278,4 @@ echo "HAproxy IP address: $fip2"
 
 # Displaying time taken by the script to deploy the environment
 duration=$SECONDS
-echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."
+echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds used."
