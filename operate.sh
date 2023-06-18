@@ -146,7 +146,7 @@ do
             ((sequence1++))
         done
     else
-        echo "$(date) Required number of nodes are present."
+        echo "$(date) Required number of nodes are available"
     fi
      
     current_servers=$(openstack server list --status ACTIVE --column Name -f value)
@@ -155,7 +155,7 @@ do
     
     if [[ "$no_of_servers" == "$new_count" &&  "$run_status" -eq 0 ]]
     then
-        echo "$(date) Sleeping 30 seconds. Press CTRL-C if you wish to exit. "    
+        echo "$(date) Sleeping 30 seconds. Press CTRL-C if you want to exit. "    
     else
             delete_config
             generate_config
@@ -166,7 +166,6 @@ do
     
 
     fi
-   
-    
+     
     sleep 30
 done
