@@ -143,7 +143,7 @@ else
             fip1="$(cat floating_ip1)"
     fi
     echo "$(date) Did not detect ${sr_bastion_server}, launching it."
-    bastion=$(openstack server create --image "Ubuntu 20.04 Focal Fossa 20200423" ${sr_bastion_server} --key-name ${sr_keypair} --flavor "1C-2GB-50GB" --network ${natverk_namn} --security-group ${sr_security_group}) 
+    bastion=$(openstack server create --image "Ubuntu 20.04 Focal Fossa 20200423" ${sr_bastion_server} --key-name ${sr_keypair} --flavor "2C-2GB" --network ${natverk_namn} --security-group ${sr_security_group}) 
     add_bastion_fip=$(openstack server add floating ip ${sr_bastion_server} ${fip1}) 
     echo "$(date) Floating IP assigned for bastion."
     echo "$(date) Added ${sr_bastion_server} server."
