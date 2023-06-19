@@ -3,3 +3,5 @@ This is a project to deploy resources in the cloud enviroment. The project is fu
 Openstack is used to deploy different resouces in the cloud such as network, subnet, router and virtual machines. 
 
 Ansible is later used to commission apllications in the virtual machines. 
+
+After the resources are deployed. we will test the performance of the nodes using Apache benchmarking tool
