@@ -3,18 +3,17 @@
 SECONDS=0 # Using this to find how much time the solution takes to deploy
 
 
-# Checking if the required arguments are present - the openrc ${1}, the tag ${2} and the ssh_key ${3}
-# The program will not run if these arguments are not present.
+# Checking required arguments
 : ${1:?" Please specify the openrc, tag, and ssh_key"}
 : ${2:?" Please specify the openrc, tag, and ssh_key"}
 : ${3:?" Please specify the openrc, tag, and ssh_key"}
 
 
 cd_time=$(date)
-openrc_sr=${1}     # Fetching the openrc access file
-tag_sr=${2}        # Fetching the tag for easy identification of items
-ssh_key_sr=${3}    # Fetching the ssh_key for secure remote access
-no_of_servers=$(grep -E '[0-9]' servers.conf) # Fetching the number of nodes from servers.conf
+openrc_sr=${1}     # The openrc file
+tag_sr=${2}        # The tag for identification of items
+ssh_key_sr=${3}    # The ssh_key 
+no_of_servers=$(grep -E '[0-9]' servers.conf) # Getting the number of nodes from servers.conf
 
 
 # Begin deployment by sourcing the given openrc file
