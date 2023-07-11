@@ -33,9 +33,7 @@ source $openrc_sr
 generate_config(){
     bastionfip=$(openstack server list --name $sr_bastion_server -c Networks -f value | grep -Po '\d+\.\d+\.\d+\.\d+' | awk 'NR==2')
     haproxyfip=$(openstack server list --name $sr_haproxy_server -c Networks -f value | grep -Po '\d+\.\d+\.\d+\.\d+' | awk 'NR==2')
-    
-    
-
+     
     echo "$(date) Generating a config file"
     echo "Host $sr_bastion_server" >> $sshconfig
     echo "   User ubuntu" >> $sshconfig
@@ -58,7 +56,7 @@ generate_config(){
     echo "[bastion]" >> $hostsfile
     echo "$sr_bastion_server" >> $hostsfile
     echo " " >> $hostsfile
-    echo "[haproxy]" >> $hostsfile
+    echo "[proxyserver]" >> $hostsfile
     echo "$sr_haproxy_server" >> $hostsfile
     
     echo " " >> $hostsfile
