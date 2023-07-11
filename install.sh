@@ -200,7 +200,7 @@ if((${no_of_servers} > ${devservers_count})); then
 
     while [ ${devservers_to_add} -gt 0 ]  
     do    
-        server_output=$(openstack server create --image "Ubuntu 20.04 Focal Fossa 20200423"  ${devserver_name} --key-name "${sr_keypair}" --flavor "1C-2GB-50GB" --network ${natverk_namn} --security-group ${sr_security_group})
+        server_output=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64"  ${devserver_name} --key-name "${sr_keypair}" --flavor "1C-1GB" --network ${natverk_namn} --security-group ${sr_security_group})
         echo "$(date) Node ${devserver_name} created."
         ((devservers_to_add--))
         
@@ -230,11 +230,8 @@ else
     echo "Required number of servers($no_of_servers) already exist."
 fi
 
-
 bastionfip=$(openstack server list --name ${sr_bastion_server} -c Networks -f value | grep -Po '\d+\.\d+\.\d+\.\d+' | awk 'NR==2')
 haproxyfip=$(openstack server list --name ${sr_haproxy_server} -c Networks -f value | grep -Po '\d+\.\d+\.\d+\.\d+' | awk 'NR==2')
-
-
 
 echo "$(date) Generating config file"
 echo "Host $sr_bastion_server" >> $sshconfig
@@ -254,13 +251,12 @@ echo "   StrictHostKeyChecking no" >> $sshconfig
 echo "   PasswordAuthentication no ">> $sshconfig
 echo "   ProxyJump $sr_bastion_server" >> $sshconfig
 
-# Generating hosts file
+# Creating hosts file to be used by  Ansible playbook
 echo "[bastion]" >> $hostsfile
 echo "$sr_bastion_server" >> $hostsfile
 echo " " >> $hostsfile
-echo "[haproxy]" >> $hostsfile
+echo "[proxyserver]" >> $hostsfile
 echo "$sr_haproxy_server" >> $hostsfile
-
 echo " " >> $hostsfile
 echo "[webservers]" >> $hostsfile
 
@@ -283,7 +279,6 @@ for server in $active_servers; do
         echo "$server" >> $hostsfile
 done
 
-
 echo " " >> $hostsfile
 echo "[all:vars]" >> $hostsfile
 echo "ansible_user=ubuntu" >> $hostsfile
@@ -293,10 +288,9 @@ echo "ansible_ssh_common_args=' -F $sshconfig '" >> $hostsfile
 echo "$(date) Running ansible playbook"
 ansible-playbook -i "$hostsfile" site.yaml
 
-
 echo "Bastion IP address: $fip1"
 echo "HAproxy IP address: $fip2"
 
-# Displaying time taken by the script to deploy the environment
+# Time taken by the script to deploy resources
 duration=$SECONDS
 echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."
