@@ -3,23 +3,23 @@
   gather_facts: yes
   become: yes
   tasks:
-    - name: Update the repositories cache
+    - name: Updating the repositories cache
       apt:
         update_cache: yes
         cache_valid_time: 3600
       
-    - name: Install Python3-pip
+    - name: Installing Python3-pip
       apt:
          name: python3-pip
          state: present
          
-    - name: Install flask using 'pip3' executable
+    - name: Installing flask using 'pip3' executable
       ansible.builtin.pip:
         name: flask
         executable: pip3
         state: latest
 
-    - name: Upload the application to the servers
+    - name: Uploading the application to the servers
       copy:
         src: ./service.py
         dest: /home/ubuntu
@@ -27,9 +27,9 @@
         group: ubuntu
         mode: 0644
 
-    - name: Run the application
+    - name: Running the application
       shell: python3 /home/ubuntu/service.py
-      async: 3600
+      async: 86400
       poll: 0
       
     - name: Install the snmpdaemon
@@ -38,36 +38,35 @@
               state: latest
     
     - name: Copy the snmpd config file
-      template:
-              src: snmpd.conf.j2
-              dest: "/etc/snmp/snmpd.conf"
-    - name: Run the snmpdaemon
+      ansible.builtin.copy:
+              src: ./snmpd.conf
+              dest: /etc/snmp/snmpd.conf
+              
+    - name: Restarting the snmpdaemon
       service:
               name: snmpd
               state: restarted    
 
-- hosts: haproxy
+- hosts: proxyserver
   gather_facts: yes
   become: yes
   tasks:
-    - name: Update repositories cache
+    - name: Updating repositories cache
       apt:
         update_cache: yes
         cache_valid_time: 3600
-    - name: Install HAproxy
+        
+    - name: Installing NGINX
       apt:
-        name: haproxy
+        name: nginx
         state: present
-    - name: Upload haproxy config file
+        
+    - name: Uploading the NGINX config file
       template:
-        src: ./haproxy.cfg.j2
-        dest: /etc/haproxy/haproxy.cfg
-    - name: Install snmp and snmp-mibs-downloader
-      apt: 
-        update_cache: yes
-        name: [ 'snmp', 'snmp-mibs-downloader' ] 
-        state: latest
-    - name: Restart HAProxy
+        src: ./nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+
+    - name: Restarting NGINX
       service:
         name: haproxy
         state: restarted
