@@ -1,7 +1,7 @@
-This is a project to deploy resources in the cloud enviroment. The project is full automated using different technologies such as openstack and ansible.
+This is a project to deploy resources in the cloud environment. The project is fully automated using different technologies such as OpenStack and ansible.
 
-Openstack is used to deploy different resouces in the cloud such as network, subnet, router and virtual machines. 
+OpenStack is used to deploy different resources in the cloud such as network, subnet, router and virtual machines. 
 
-Ansible is later used to commission apllications in the virtual machines. 
+Ansible is later used to commission applications in virtual machines. Nodes availability checker is also deployed to monitor the availability of nodes and to dynamically add resources if new nodes are required and to remove excess nodes if fewer nodes are required. 
 
 After the resources are deployed. we will test the performance of the nodes using Apache benchmarking tool
