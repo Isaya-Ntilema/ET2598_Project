@@ -42,9 +42,7 @@ else
     new_keypair=$(openstack keypair create --public-key "${ssh_key_path}" "${sr_keypair}" )
 fi
 
-
-
-# Checking current networks corresponding to the tag
+# Checking current networks
 current_networks=$(openstack network list --tag "${tag_sr}" --column Name -f value)
 if echo "${current_networks}" | grep -qFx ${natverk_namn} 
 then
@@ -55,9 +53,7 @@ else
     echo "$(date) Added ${natverk_namn}."
 fi
 
-
-
-# Checking current subnets corresponding to the tag
+# Checking current subnets 
 current_subnets=$(openstack subnet list --tag "${tag_sr}" --column Name -f value)
 
 if echo "${current_subnets}" | grep -qFx ${sr_subnet} 
