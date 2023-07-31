@@ -253,7 +253,6 @@ echo "   IdentityFile $ssh_key_sr" >> $sshconfig
 echo "   UserKnownHostsFile /dev/null" >> $sshconfig
 echo "   StrictHostKeyChecking no" >> $sshconfig
 echo "   PasswordAuthentication no" >> $sshconfig
-
 echo " " >> $sshconfig
 echo "Host $sr_haproxy_server" >> $sshconfig
 echo "   User ubuntu" >> $sshconfig
