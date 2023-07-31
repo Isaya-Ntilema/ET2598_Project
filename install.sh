@@ -61,11 +61,9 @@ then
     echo "$(date) ${sr_subnet} already exists"
 else
     echo "$(date) Did not detect ${sr_subnet} in the OpenStack project, adding it."
-    new_subnet=$(openstack subnet create --subnet-range 10.10.0.0/27 --allocation-pool start=10.10.0.2,end=10.10.0.30 --tag "${tag_sr}" --network "${natverk_namn}" "${sr_subnet}" -f json)
+    new_subnet=$(openstack subnet create --subnet-range 10.10.0.0/27 --allocation-pool start=10.10.0.10,end=10.10.0.30 --tag "${tag_sr}" --network "${natverk_namn}" "${sr_subnet}" -f json)
     echo "$(date) Added ${sr_subnet}."
 fi
-
-
 
 # Checking current routers
 current_routers=$(openstack router list --tag "${tag_sr}" --column Name -f value)
@@ -81,8 +79,6 @@ else
     set_gateway=$(openstack router set --external-gateway ext-net ${sr_router})
     echo "$(date) Done."
 fi
-
-
 
 # Check current security groups
 current_security_groups=$(openstack security group list --tag ${tag_sr} -f value)
@@ -101,7 +97,6 @@ else
     echo "$(date) ${sr_security_group} already exists"
 fi
 
-
 if [[ -f "$sshconfig" ]] ; then
     rm "$sshconfig"
 fi
@@ -118,10 +113,7 @@ if [[ -f "$nodes_yaml" ]] ; then
     rm "$nodes_yaml"
 fi
 
-
-
 unassigned_ips=$(openstack floating ip list --status DOWN -f value -c "Floating IP Address")
-
 
 # Node creation
 
@@ -170,17 +162,14 @@ else
             fip2="$(cat floating_ip2)"
     fi
     echo "$(date) Did not detect ${sr_haproxy_server}, launching it."
-    haproxy=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64" ${sr_haproxy_server} --key-name ${sr_keypair} --flavor "1C-2GB-50GB" --network ${natverk_namn} --security-group ${sr_security_group})
+    haproxy=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64" ${sr_haproxy_server} --key-name ${sr_keypair} --flavor "1C-1GB" --network ${natverk_namn} --security-group ${sr_security_group})
     add_haproxy_fip=$(openstack server add floating ip ${sr_haproxy_server} ${fip2})
     echo "$(date) Floating IP assigned for Proxy."
     echo "$(date) Added ${sr_haproxy_server} server."
     
 fi
 
-
-
 devservers_count=$(grep -ocP ${sr_server} <<< ${existing_servers})
-
 
 if((${no_of_servers} > ${devservers_count})); then
     
@@ -189,7 +178,7 @@ if((${no_of_servers} > ${devservers_count})); then
     devserver_name=${sr_server}${v}
     servernames=$(openstack server list --status ACTIVE -f value -c Name)
     
-    # Checking for existence of nodes - also avoids name clashes
+    # Checking for existence of nodes
     check_name=0
     until [[ check_name -eq 1 ]]
     do  
@@ -205,7 +194,7 @@ if((${no_of_servers} > ${devservers_count})); then
     echo "$(date) Creating the required number of nodes - $no_of_servers."
     while [ ${devservers_to_add} -gt 0 ]  
     do    
-        server_output=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64"  ${devserver_name} --key-name "${sr_keypair}" --flavor "1C-2GB-50GB" --network ${natverk_namn} --security-group ${sr_security_group})
+        server_output=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64"  ${devserver_name} --key-name "${sr_keypair}" --flavor "1C-1GB" --network ${natverk_namn} --security-group ${sr_security_group})
         echo "$(date) Node ${devserver_name} created."
         ((devservers_to_add--))
         
@@ -232,13 +221,10 @@ if((${no_of_servers} > ${devservers_count})); then
         else
         check_name=1     
         fi
-        done
+        done    
     
-    
-
     done
     
-
 elif (( $no_of_servers < $devservers_count )); then
     echo "$(date) There are more number of nodes present than required ($no_of_servers)."
     echo "$(date) Removing the additional nodes."
@@ -254,13 +240,10 @@ else
     echo "$(date) Required number of servers ($no_of_servers) already exist."
 fi
 
-
 bastionfip=$(openstack server list --name ${sr_bastion_server} -c Networks -f value | grep -Po '\d+\.\d+\.\d+\.\d+' | awk 'NR==2')
 haproxyfip=$(openstack server list --name ${sr_haproxy_server} -c Networks -f value | grep -Po '\d+\.\d+\.\d+\.\d+' | awk 'NR==2')
 
-
 ssh_key_sr=${ssh_key_path::-4} # Removing .pub from the ssh key path
- 
  
 echo "$(date) Generating config file"
 echo "Host $sr_bastion_server" >> $sshconfig
@@ -286,15 +269,13 @@ echo "$sr_bastion_server" >> $hostsfile
 echo " " >> $hostsfile
 echo "[proxy]" >> $hostsfile
 echo "$sr_haproxy_server" >> $hostsfile
-
 echo " " >> $hostsfile
 echo "[webservers]" >> $hostsfile
 
-
-# Get the list of active servers
+# List of active servers
 active_servers=$(openstack server list --status ACTIVE -f value -c Name | grep -oP "$tag_sr"'_dev([0-9]+)')
 echo "$active_Servers"
-# Loop through each active server and extract its IP address
+# Loop through to get IP addresses of active servers
 for server in $active_servers; do
         ip_address=$(openstack server list --name $server -c Networks -f value | grep -Po  '\d+\.\d+\.\d+\.\d+')
         echo " " >> $sshconfig
@@ -313,15 +294,13 @@ for server in $active_servers; do
 
 done
 
-
-
 echo " " >> $hostsfile
 echo "[all:vars]" >> $hostsfile
 echo "ansible_user=ubuntu" >> $hostsfile
 echo "ansible_ssh_private_key_file=$ssh_key_sr" >> $hostsfile
 echo "ansible_ssh_common_args=' -F $sshconfig '" >> $hostsfile
 
-echo "$(date) Running ansible playbook"
+echo "$(date) Running ansible-playbook"
 ansible-playbook -i "$hostsfile" site.yaml
 sleep 5
 echo "$(date) Checking node availability through ${sr_bastion_server}."
@@ -330,6 +309,6 @@ echo "$(date) Deployment done."
 echo "Bastion IP address: $bastionfip"
 echo "Proxy IP address: $haproxyfip"
 
-# Displaying time taken by the script to deploy the environment
+# Displaying time taken to deploy the environment
 duration=$SECONDS
 echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."
