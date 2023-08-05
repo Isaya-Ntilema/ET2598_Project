@@ -137,7 +137,7 @@ else
             fip1="$(cat floating_ip1)"
     fi
     echo "$(date) Did not detect ${sr_bastion_server}, launching it."
-    bastion=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64" ${sr_bastion_server} --key-name ${sr_keypair} --flavor "1C-2GB-50GB" --network ${natverk_namn} --security-group ${sr_security_group}) 
+    bastion=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64" ${sr_bastion_server} --key-name ${sr_keypair} --flavor "1C-1GB-20GB" --network ${natverk_namn} --security-group ${sr_security_group}) 
     add_bastion_fip=$(openstack server add floating ip ${sr_bastion_server} ${fip1}) 
     echo "$(date) Floating IP assigned for bastion."
     echo "$(date) Added ${sr_bastion_server} server."
@@ -162,7 +162,7 @@ else
             fip2="$(cat floating_ip2)"
     fi
     echo "$(date) Did not detect ${sr_haproxy_server}, launching it."
-    haproxy=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64" ${sr_haproxy_server} --key-name ${sr_keypair} --flavor "1C-1GB" --network ${natverk_namn} --security-group ${sr_security_group})
+    haproxy=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64" ${sr_haproxy_server} --key-name ${sr_keypair} --flavor "1C-1GB-20GB" --network ${natverk_namn} --security-group ${sr_security_group})
     add_haproxy_fip=$(openstack server add floating ip ${sr_haproxy_server} ${fip2})
     echo "$(date) Floating IP assigned for Proxy."
     echo "$(date) Added ${sr_haproxy_server} server."
@@ -194,7 +194,7 @@ if((${no_of_servers} > ${devservers_count})); then
     echo "$(date) Creating the required number of nodes - $no_of_servers."
     while [ ${devservers_to_add} -gt 0 ]  
     do    
-        server_output=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64"  ${devserver_name} --key-name "${sr_keypair}" --flavor "1C-1GB" --network ${natverk_namn} --security-group ${sr_security_group})
+        server_output=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64"  ${devserver_name} --key-name "${sr_keypair}" --flavor "1C-1GB-20GB" --network ${natverk_namn} --security-group ${sr_security_group})
         echo "$(date) Node ${devserver_name} created."
         ((devservers_to_add--))
         
@@ -207,7 +207,7 @@ if((${no_of_servers} > ${devservers_count})); then
         done
         
         servernames=$(openstack server list --status ACTIVE -f value -c Name)
-        v=$[ $RANDOM % 40 + 10 ]
+        v=$[ $RANDOM % 100 + 10 ]
         devserver_name=${sr_server}${v}
         
         check_name=0
@@ -216,7 +216,7 @@ if((${no_of_servers} > ${devservers_count})); then
         do  
         if echo "${servernames}" | grep -qFx ${devserver_name} 
         then
-        v=$[ $RANDOM % 40 + 10 ]
+        v=$[ $RANDOM % 100 + 10 ]
         devserver_name=${sr_server}${v} 
         else
         check_name=1     
