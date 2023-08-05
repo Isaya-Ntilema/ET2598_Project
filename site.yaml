@@ -68,5 +68,5 @@
 
     - name: Restarting NGINX
       service:
-        name: haproxy
+        name: nginx
         state: restarted
