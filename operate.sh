@@ -144,7 +144,7 @@ do
         run_status=1 # Ansible run status for the increased number of nodes
         while [ $devservers_to_add -gt 0 ]
         do   
-            server_create=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64"  $devserver_name --key-name "$sr_keypair" --flavor "1C-2GB-50GB" --network "$natverk_namn" --security-group "$sr_security_group")
+            server_create=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64"  $devserver_name --key-name "$sr_keypair" --flavor "1C-1GB-20GB" --network "$natverk_namn" --security-group "$sr_security_group")
             echo "$(date) Created $devserver_name node"
             ((devservers_to_add--))
             sequence=$(( $sequence+1 ))
@@ -156,7 +156,7 @@ do
                 fi
             done
             servernames=$(openstack server list --status ACTIVE -f value -c Name)
-            v=$[ $RANDOM % 40 + 10 ]
+            v=$[ $RANDOM % 100 + 10 ]
             devserver_name=${sr_server}${v}
         
             check_name=0
@@ -165,7 +165,7 @@ do
             do  
                 if echo "${servernames}" | grep -qFx ${devserver_name} 
                 then
-                v=$[ $RANDOM % 40 + 10 ]
+                v=$[ $RANDOM % 100 + 10 ]
                 devserver_name=${sr_server}${v} 
                 else
                 check_name=1     
