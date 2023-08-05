@@ -266,7 +266,7 @@ echo "   ProxyJump $sr_bastion_server" >> $sshconfig
 echo "[bastion]" >> $hostsfile
 echo "$sr_bastion_server" >> $hostsfile
 echo " " >> $hostsfile
-echo "[proxy]" >> $hostsfile
+echo "[proxyserver]" >> $hostsfile
 echo "$sr_haproxy_server" >> $hostsfile
 echo " " >> $hostsfile
 echo "[webservers]" >> $hostsfile
