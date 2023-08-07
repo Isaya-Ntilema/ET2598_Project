@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Checking if the required arguments are present - the openrc, the tag and the ssh_key
-# The program will not run if these arguments are not present.
+# Checking the required arguments
 : ${1:?" Please specify the openrc, tag, and ssh_key"}
 : ${2:?" Please specify the openrc, tag, and ssh_key"}
 : ${3:?" Please specify the openrc, tag, and ssh_key"}
@@ -112,7 +111,7 @@ a=true
 no_of_servers=$(grep -E '[0-9]' servers.conf) # Fetching the number of nodes from servers.conf
 while  [ "$a" = true ]
 do
-    echo "$(date) We need $no_of_servers nodes as specified in servers.conf"
+    echo "$(date) We require $no_of_servers nodes as specified in servers.conf"
 
     existing_servers=$(openstack server list --status ACTIVE --column Name -f value)
     devservers_count=$(grep -c $sr_server <<< $existing_servers)
