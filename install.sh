@@ -13,7 +13,7 @@ ssh_key_path=${3}  # the ssh_key
 no_of_servers=$(grep -E '[0-9]' servers.conf) # number of nodes from servers.conf
 
 # Sourcing the given openrc file
-echo "${cd_time} Starting deployment of $tag_sr using ${openrc_sr} for credentials."
+echo "${cd_time} Begining the deployment of $tag_sr using ${openrc_sr} for credentials."
 source ${openrc_sr}
 
 # Defining variables
@@ -37,7 +37,7 @@ if echo "${current_keypairs}" | grep -qFx ${sr_keypair}
 then
     echo "$(date) ${sr_keypair} already exists"
 else 
-    echo "$(date) Did not detect ${sr_keypair} in the OpenStack project."
+    echo "$(date) Did not find ${sr_keypair} in this OpenStack project."
     echo "$(date) Adding ${sr_keypair} associated with ${ssh_key_path}."
     new_keypair=$(openstack keypair create --public-key "${ssh_key_path}" "${sr_keypair}" )
 fi
@@ -48,7 +48,7 @@ if echo "${current_networks}" | grep -qFx ${natverk_namn}
 then
     echo "$(date) ${natverk_namn} already exists"
 else
-    echo "$(date) Did not detect ${natverk_namn} in the OpenStack project, adding it."
+    echo "$(date) Did not find ${natverk_namn} in this OpenStack project, adding it."
     new_network=$(openstack network create --tag "${tag_sr}" "${natverk_namn}" -f json)
     echo "$(date) Added ${natverk_namn}."
 fi
@@ -60,7 +60,7 @@ if echo "${current_subnets}" | grep -qFx ${sr_subnet}
 then
     echo "$(date) ${sr_subnet} already exists"
 else
-    echo "$(date) Did not detect ${sr_subnet} in the OpenStack project, adding it."
+    echo "$(date) Did not find ${sr_subnet} in this OpenStack project, adding it."
     new_subnet=$(openstack subnet create --subnet-range 10.10.0.0/27 --allocation-pool start=10.10.0.10,end=10.10.0.30 --tag "${tag_sr}" --network "${natverk_namn}" "${sr_subnet}" -f json)
     echo "$(date) Added ${sr_subnet}."
 fi
@@ -71,10 +71,10 @@ if echo "${current_routers}" | grep -qFx ${sr_router}
 then
     echo "$(date) ${sr_router} already exists"
 else
-    echo "$(date) Did not detect ${sr_router} in the OpenStack project, adding it."
+    echo "$(date) Did not find ${sr_router} in this OpenStack project, adding it."
     new_router=$(openstack router create --tag ${tag_sr} ${sr_router})
     echo "$(date) Added ${sr_router}."
-    echo "$(date) Configuring router."
+    echo "$(date) Configuring the router."
     add_subnet=$(openstack router add subnet ${sr_router} ${sr_subnet})
     set_gateway=$(openstack router set --external-gateway ext-net ${sr_router})
     echo "$(date) Done."
@@ -87,11 +87,10 @@ then
     echo "$(date) Adding security group(s)."
     created_security_group=$(openstack security group create --tag ${tag_sr} ${sr_security_group} -f json)
     rule1=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 22 --protocol tcp --ingress ${sr_security_group})
-    # rule2=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 80 --protocol tcp --ingress ${sr_security_group})
-    rule3=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 5000 --protocol tcp --ingress ${sr_security_group})
-    rule4=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 6000 --protocol udp --ingress ${sr_security_group})
-    rule5=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 161 --protocol udp --ingress ${sr_security_group})
-    rule6=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 80 --protocol icmp --ingress ${sr_security_group})
+    rule2=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 5000 --protocol tcp --ingress ${sr_security_group})
+    rule3=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 6000 --protocol udp --ingress ${sr_security_group})
+    rule4=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 161 --protocol udp --ingress ${sr_security_group})
+    rule5=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 80 --protocol icmp --ingress ${sr_security_group})
     echo "$(date) Done."
 else
     echo "$(date) ${sr_security_group} already exists"
@@ -152,19 +151,19 @@ else
         if [[ -n "$fip2" ]]; then
             echo "$(date) 1 floating IP available for the Proxy server."
         else
-            echo "$(date) Creating floating IP for the Proxy "
+            echo "$(date) Creating floating IP for the Proxy server"
             created_fip2=$(openstack floating ip create ext-net -f json | jq -r '.floating_ip_address' > floating_ip2)
             fip2="$(cat floating_ip2)"
         fi
     else
-            echo "$(date) Creating floating IP for Proxy "
+            echo "$(date) Creating a floating IP for Proxy server"
             created_fip2=$(openstack floating ip create ext-net -f json | jq -r '.floating_ip_address' > floating_ip2)
             fip2="$(cat floating_ip2)"
     fi
-    echo "$(date) Did not detect ${sr_haproxy_server}, launching it."
+    echo "$(date) Did not find ${sr_haproxy_server}, launching it."
     haproxy=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64" ${sr_haproxy_server} --key-name ${sr_keypair} --flavor "1C-1GB-20GB" --network ${natverk_namn} --security-group ${sr_security_group})
     add_haproxy_fip=$(openstack server add floating ip ${sr_haproxy_server} ${fip2})
-    echo "$(date) Floating IP assigned for Proxy."
+    echo "$(date) Floating IP assigned for Proxy server."
     echo "$(date) Added ${sr_haproxy_server} server."
     
 fi
@@ -227,7 +226,7 @@ if((${no_of_servers} > ${devservers_count})); then
     
 elif (( $no_of_servers < $devservers_count )); then
     echo "$(date) There are more number of nodes present than required ($no_of_servers)."
-    echo "$(date) Removing the additional nodes."
+    echo "$(date) Removing the redundant nodes."
     devservers_to_remove=$(($devservers_count - $no_of_servers))
     sequence1=0
     while [[ $sequence1 -lt $devservers_to_remove ]]; do
@@ -310,4 +309,4 @@ echo "Proxy IP address: $haproxyfip"
 
 # Displaying time taken to deploy the environment
 duration=$SECONDS
-echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."
+echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds used."
