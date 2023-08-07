@@ -84,7 +84,7 @@ fi
 current_security_groups=$(openstack security group list --tag ${tag_sr} -f value)
 if [[ -z "${current_security_groups}" ||  "${current_security_groups}" != *"${sr_security_group}"* ]]
 then
-    echo "$(date) Adding security group(s)."
+    echo "$(date) Adding security group rules."
     created_security_group=$(openstack security group create --tag ${tag_sr} ${sr_security_group} -f json)
     rule1=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 22 --protocol tcp --ingress ${sr_security_group})
     rule2=$(openstack security group rule create --remote-ip 0.0.0.0/0 --dst-port 5000 --protocol tcp --ingress ${sr_security_group})
@@ -135,7 +135,7 @@ else
             created_fip1=$(openstack floating ip create ext-net -f json | jq -r '.floating_ip_address' > floating_ip1)
             fip1="$(cat floating_ip1)"
     fi
-    echo "$(date) Did not detect ${sr_bastion_server}, launching it."
+    echo "$(date) Did not find ${sr_bastion_server}, launching it."
     bastion=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64" ${sr_bastion_server} --key-name ${sr_keypair} --flavor "1C-1GB-20GB" --network ${natverk_namn} --security-group ${sr_security_group}) 
     add_bastion_fip=$(openstack server add floating ip ${sr_bastion_server} ${fip1}) 
     echo "$(date) Floating IP assigned for bastion."
@@ -190,7 +190,7 @@ if((${no_of_servers} > ${devservers_count})); then
         fi
     done
     
-    echo "$(date) Creating the required number of nodes - $no_of_servers."
+    echo "$(date) Creating the required number of nodes which is $no_of_servers."
     while [ ${devservers_to_add} -gt 0 ]  
     do    
         server_output=$(openstack server create --image "Ubuntu 20.04 Focal Fossa x86_64"  ${devserver_name} --key-name "${sr_keypair}" --flavor "1C-1GB-20GB" --network ${natverk_namn} --security-group ${sr_security_group})
