@@ -76,23 +76,23 @@
   gather_facts: yes
   become: yes
   tasks:
-    - name: Update repositories cache
+    - name: Updating repositories cache
       apt:
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Install Python3-pip
+    - name: Installing Python3-pip
       apt:
          name: python3-pip
          state: present
          
-    - name: Install required modules
+    - name: Installing required modules
       ansible.builtin.pip:
         name: [ 'flask', 'ping3' ]
         executable: pip3
         state: latest
 
-    - name: Uploading the alive.py application
+    - name: Uploading the node availability checker application
       copy:
         src: ./alive.py
         dest: /home/ubuntu
@@ -100,12 +100,12 @@
         group: ubuntu
         mode: 0644
 
-    - name: Copy nodes.yaml
+    - name: Copying nodes.yaml
       ansible.builtin.copy:
               src: ./nodes.yaml
               dest: /home/ubuntu
 
-    - name: Running the application
+    - name: Running the node availability checker application
       shell: python3 /home/ubuntu/alive.py
       async: 3600
       poll: 0
