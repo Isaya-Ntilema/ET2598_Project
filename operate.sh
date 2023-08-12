@@ -179,7 +179,7 @@ do
         echo "$(date) Removing $devservers_to_remove nodes."
         run_status=1 # Ansible run status for reduced nummer of nodes
         while [[ $sequence1 -lt $devservers_to_remove ]]; do
-            server_to_delete=$(openstack server list --status ACTIVE -f value -c Name | grep -m1 -oP "${tag_sr}"'_dev([0-9]+)')     
+            server_to_delete=$(openstack server list --status ACTIVE -f value -c Name | grep -m1 -oP "${tag_sr}"'_server([0-9]+)')     
             deleted_server=$(openstack server delete "$server_to_delete" --wait)
             echo "$(date) Removed $server_to_delete node"
             ((sequence1++))
