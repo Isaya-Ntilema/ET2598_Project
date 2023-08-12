@@ -272,7 +272,7 @@ echo "[webservers]" >> $hostsfile
 
 # List of active servers
 active_servers=$(openstack server list --status ACTIVE -f value -c Name | grep -oP "$tag_sr"'_dev([0-9]+)')
-echo "$active_Servers"
+echo "$active_servers"
 # Loop through to get IP addresses of active servers
 for server in $active_servers; do
         ip_address=$(openstack server list --name $server -c Networks -f value | grep -Po  '\d+\.\d+\.\d+\.\d+')
