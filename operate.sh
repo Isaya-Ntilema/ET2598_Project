@@ -62,8 +62,8 @@ generate_config(){
     
     # The list of running servers
     
-    active_servers=$(openstack server list --status ACTIVE -f value -c Name | grep -oP "${tag_sr}"'_dev([0-9]+)')
-    echo "$active_servers"
+    active_servers=$(openstack server list --status ACTIVE -f value -c Name | grep -oP "${tag_sr}"'_server([0-9]+)')
+    
     # Getting IP addresses servers
     for server in $active_servers; do
             ip_address=$(openstack server list --name $server -c Networks -f value | grep -Po  '\d+\.\d+\.\d+\.\d+')
