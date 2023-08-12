@@ -24,7 +24,7 @@ sr_router="${2}_router"
 sr_security_group="${2}_security_group"
 sr_haproxy_server="${2}_proxy"
 sr_bastion_server="${2}_bastion"
-sr_server="${2}_dev"
+sr_server="${2}_server"
 sshconfig="config"
 knownhosts="known_hosts"
 hostsfile="hosts"
@@ -173,7 +173,7 @@ devservers_count=$(grep -ocP ${sr_server} <<< ${existing_servers})
 if((${no_of_servers} > ${devservers_count})); then
     
     devservers_to_add=$((${no_of_servers} - ${devservers_count}))
-    v=$[ $RANDOM % 40 + 10 ]
+    v=$[ $RANDOM % 100 + 10 ]
     devserver_name=${sr_server}${v}
     servernames=$(openstack server list --status ACTIVE -f value -c Name)
     
@@ -183,7 +183,7 @@ if((${no_of_servers} > ${devservers_count})); then
     do  
         if echo "${servernames}" | grep -qFx ${devserver_name} 
         then
-        v=$[ $RANDOM % 40 + 10 ]
+        v=$[ $RANDOM % 100 + 10 ]
         devserver_name=${sr_server}${v}
         else
         check_name=1     
