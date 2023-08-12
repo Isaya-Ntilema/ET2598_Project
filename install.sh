@@ -230,7 +230,7 @@ elif (( $no_of_servers < $devservers_count )); then
     devservers_to_remove=$(($devservers_count - $no_of_servers))
     sequence1=0
     while [[ $sequence1 -lt $devservers_to_remove ]]; do
-        server_to_delete=$(openstack server list --status ACTIVE -f value -c Name | grep -m1 -oP "${tag_sr}"'_dev([0-9]+)')   
+        server_to_delete=$(openstack server list --status ACTIVE -f value -c Name | grep -m1 -oP "${tag_sr}"'_server([0-9]+)')   
         deleted_server=$(openstack server delete "$server_to_delete" --wait)
         echo " $(date) Deleted $server_to_delete server"
         ((sequence1++))
